@@ -19,10 +19,14 @@ import polars as pl
 import sys
 from pathlib import Path
 
-from default_inference_server import DefaultInferenceServer
-
-server = DefaultInferenceServer()
-server.run_for_test(('/kaggle/input/hull-tactical-market-prediction',))
+try:  # default_inference_server is only available in the Kaggle environment
+    from default_inference_server import DefaultInferenceServer  # type: ignore
+except ModuleNotFoundError:
+    DefaultInferenceServer = None  # type: ignore[assignment]
+    server = None
+else:  # pragma: no cover - requires Kaggle runtime
+    server = DefaultInferenceServer()
+    server.run_for_test(("/kaggle/input/hull-tactical-market-prediction",))
 
 EVAL_ROOT = Path('/kaggle/input/hull-tactical-market-prediction/kaggle_evaluation')
 sys.path.append(str(EVAL_ROOT))
